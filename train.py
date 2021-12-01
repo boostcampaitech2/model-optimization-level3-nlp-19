@@ -21,6 +21,8 @@ from src.utils.common import get_label_counts, read_yaml
 from src.utils.torch_utils import check_runtime, model_info
 
 import wandb
+wandb.init(project="model-optimization", entity="woongjoon")
+
 def train(
     model_config: Dict[str, Any],
     data_config: Dict[str, Any],
@@ -45,6 +47,8 @@ def train(
         )
     model_instance.model.to(device)
 
+    print(type(model_instance))
+    # return 
     # Create dataloader
     train_dl, val_dl, test_dl = create_dataloader(data_config)
 
@@ -59,9 +63,10 @@ def train(
         epochs=data_config["EPOCHS"],
         pct_start=0.05,
     )
+
     criterion = CustomCriterion(
         samples_per_cls=get_label_counts(data_config["DATA_PATH"])
-        if data_config["DATASET"] == "TACO"
+        if data_config["DATASET"] == "TACO" or data_config["DATASET"] == "CIFAR10"
         else None,
         device=device,
     )
@@ -69,7 +74,7 @@ def train(
     scaler = (
         torch.cuda.amp.GradScaler() if fp16 and device != torch.device("cpu") else None
     )
-
+    
     # Create trainer
     trainer = TorchTrainer(
         model=model_instance.model,
@@ -132,9 +137,10 @@ if __name__ == "__main__":
             new_log_dir = os.path.dirname(log_dir) + '/' + modified.strftime("%Y-%m-%d_%H-%M-%S")
             os.rename(log_dir, new_log_dir)
 
-        os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
     study = optuna.create_study(directions=["minimize", "maximize","maximize"])
-    study.optimize(objective, n_trials=30, timeout=300)
+    study.optimize(objective, n_trials=1, timeout=300)
+    print(study.best_params)
     # test_loss, test_f1, test_acc = train(
     #     model_config=model_config,
     #     data_config=data_config,

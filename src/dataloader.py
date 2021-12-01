@@ -53,7 +53,8 @@ def create_dataloader(
     print(len(val_dataset))
     print('-----------------------------------')
     print(len(test_dataset))
-    exit()
+    # exit()
+    # return
     #
 
     return get_dataloader(
@@ -141,7 +142,7 @@ def get_dataloader(
         pin_memory=(torch.cuda.is_available()),
         shuffle=True,
         batch_size=batch_size,
-        num_workers=10,
+        num_workers=8,
         drop_last=True
     )
     valid_loader = DataLoader(

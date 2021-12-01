@@ -18,6 +18,8 @@ def get_label_counts(dataset_path: str):
     """Counts for each label."""
     if not dataset_path:
         return None
+
+    print(dataset_path)
     td = ImageFolder(root=dataset_path)
     # get label distribution
     label_counts = [0] * len(td.classes)

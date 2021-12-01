@@ -128,14 +128,17 @@ class TorchTrainer:
         best_test_f1 = -1.0
         num_classes = _get_len_label_from_dataset(train_dataloader.dataset)
         label_list = [i for i in range(num_classes)]
-
+        
         for epoch in range(n_epoch):
             running_loss, correct, total = 0.0, 0, 0
             preds, gt = [], []
             pbar = tqdm(enumerate(train_dataloader), total=len(train_dataloader))
+
             self.model.train()
+
             for batch, (data, labels) in pbar:
                 data, labels = data.to(self.device), labels.to(self.device)
+
 
                 if self.scaler:
                     with torch.cuda.amp.autocast():
@@ -146,7 +149,7 @@ class TorchTrainer:
                 loss = self.criterion(outputs, labels)
 
                 self.optimizer.zero_grad()
-
+    
                 if self.scaler:
                     self.scaler.scale(loss).backward()
                     self.scaler.step(self.optimizer)
